@@ -16,17 +16,8 @@ export const loader: LoaderFunction = ({ request, context }) => {
 
   const resolver: Resolver = async (asset, url, options, basePath) => {
     if (asset.startsWith("/") && (asset.length === 1 || asset[1] !== "/")) {
-      console.log("url", url);
-      const fetchUrl = new URL("build/" + url, SELF_URL).toString();
-      console.log("fetchurl", fetchUrl);
-      const imgRequest = new Request(fetchUrl);
-      const imageResponse = await context.ASSETS.fetch(
-        imgRequest.url,
-        imgRequest
-      );
-      console.log("status", imageResponse.status, imageResponse.statusText);
+      const imageResponse = await context.ASSETS.fetch(url);
       const arrBuff = await imageResponse.arrayBuffer();
-      console.log("arr", arrBuff);
 
       const buffer = new Uint8Array(arrBuff);
       const contentType = imageResponse.headers.get(
