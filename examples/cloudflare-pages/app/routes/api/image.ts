@@ -16,8 +16,14 @@ export const loader: LoaderFunction = ({ request, context }) => {
 
   const resolver: Resolver = async (asset, url, options, basePath) => {
     if (asset.startsWith("/") && (asset.length === 1 || asset[1] !== "/")) {
+      console.log("url", url);
       const fetchUrl = new URL(url, SELF_URL).toString();
-      const imageResponse = await context.ASSETS.fetch(fetchUrl);
+      console.log("fetchurl", fetchUrl);
+      const imgRequest = new Request(fetchUrl);
+      const imageResponse = await context.ASSETS.fetch(
+        imgRequest.url,
+        imgRequest
+      );
       const arrBuff = await imageResponse.arrayBuffer();
 
       const buffer = new Uint8Array(arrBuff);
@@ -36,7 +42,7 @@ export const loader: LoaderFunction = ({ request, context }) => {
 
   const config = {
     selfUrl: SELF_URL,
-    cache,
+    //cache,
     resolver,
   };
 
