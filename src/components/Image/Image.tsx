@@ -1,8 +1,6 @@
-import clsx from "clsx";
 import React from "react";
 import { useResponsiveImage } from "../../hooks";
 import type { ResponsiveSize, SizelessOptions } from "../../types/image";
-import classes from "./Image.module.scss";
 
 export interface ImageProps extends React.ComponentProps<"img"> {
   loaderUrl?: string;
@@ -29,12 +27,14 @@ export const Image = React.forwardRef<HTMLImageElement, ImageProps>(
     );
 
     return (
-      <img
-        ref={ref}
-        className={clsx(classes.root, className)}
-        {...imgProps}
-        {...responsiveProps}
-      />
+      <picture>
+        <img
+          ref={ref}
+          className={className}
+          {...imgProps}
+          {...responsiveProps}
+        />
+      </picture>
     );
   }
 );
