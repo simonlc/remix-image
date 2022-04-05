@@ -1,6 +1,6 @@
 {
   "name": "@simonlc/remix-image",
-  "version": "0.4.0",
+  "version": "0.5.3",
   "description": "A React component for responsive images in Remix",
   "author": "Josh McFarlin <josh@mcfarl.in>",
   "license": "MIT",
