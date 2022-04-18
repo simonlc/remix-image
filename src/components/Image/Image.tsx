@@ -1,3 +1,4 @@
+import { omit } from "lodash";
 import React from "react";
 import { MimeType } from "../..";
 import { useResponsiveImage } from "../../hooks";
@@ -48,7 +49,7 @@ export const Image = React.forwardRef<HTMLImageElement, ImageProps>(
           ref={ref}
           className={className}
           {...imgProps}
-          {...responsiveProps}
+          {...omit(responsiveProps, ["srcset", "srcSet", "sizes", "width"])}
         />
       </picture>
     );

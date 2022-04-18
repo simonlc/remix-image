@@ -1,13 +1,10 @@
-import { promisify } from "util";
 import { redirect } from "@remix-run/server-runtime";
-import sizeOf from "image-size";
 import mimeFromBuffer from "mime-tree";
 import {
   ImageFit,
   ImagePosition,
   MimeType,
   TransformOptions,
-  UnsupportedImageError,
 } from "../../types";
 import { RemixImageError } from "../../types/error";
 import type { AssetLoader } from "../../types/loader";
@@ -15,8 +12,6 @@ import { imageResponse, textResponse } from "../../utils/response";
 import { decodeQuery, decodeTransformQuery, parseURL } from "../../utils/url";
 import { fetchResolver } from "../resolvers/fetchResolver";
 import { pureTransformer } from "../transformers";
-
-const sizeOfAsync = promisify(sizeOf);
 
 export const imageLoader: AssetLoader = async (
   {
@@ -125,55 +120,17 @@ export const imageLoader: AssetLoader = async (
     }
 
     // TODO Ignore since we want 3 types by default
-    if (!outputContentType) {
+    if (!transformOptions.contentType) {
+      console.log("here contenttype", inputContentType);
       outputContentType = inputContentType;
+    } else {
+      outputContentType = transformOptions.contentType;
     }
-
-    // TODO Set width/height in options to Math.min(actual, wanted)
-    const { width: imageWidth, height: imageHeight } = sizeOf(
-      new Buffer(loadedImg)
-    );
 
     if (!shouldTransform || skipFormats?.has(inputContentType)) {
       resultImg = loadedImg;
     } else if (transformer != null) {
       const curTransformer = transformer;
-
-      // TODO Input content types should be a list or ignored
-      // ignoring for now
-      // if (!transformer.supportedInputs.has(inputContentType)) {
-      //   if (
-      //     useFallbackTransformer &&
-      //     transformer !== fallbackTransformer &&
-      //     fallbackTransformer.supportedInputs.has(inputContentType)
-      //   ) {
-      //     console.error(
-      //       `Transformer does not allow this input content type: ${inputContentType}! Falling back to transformer: ${fallbackTransformer.name}`
-      //     );
-      //     curTransformer = fallbackTransformer;
-      //   } else {
-      //     throw new UnsupportedImageError(
-      //       `Transformer does not allow this input content type: ${inputContentType}!`
-      //     );
-      //   }
-      // }
-
-      // Same, ignore for now
-      // if (!curTransformer.supportedOutputs.has(outputContentType)) {
-      //   if (
-      //     useFallbackFormat &&
-      //     curTransformer.supportedOutputs.has(fallbackFormat)
-      //   ) {
-      //     console.error(
-      //       `Transformer does not allow this output content type: ${outputContentType}! Falling back to mime type: ${fallbackFormat}`
-      //     );
-      //     outputContentType = fallbackFormat;
-      //   } else {
-      //     throw new UnsupportedImageError(
-      //       `Transformer does not allow this output content type: ${outputContentType}!`
-      //     );
-      //   }
-      // }
 
       resultImg = await curTransformer.transform(
         {
@@ -183,14 +140,8 @@ export const imageLoader: AssetLoader = async (
         },
         {
           ...transformOptions,
-          width:
-            imageWidth && transformOptions.width
-              ? Math.min(imageWidth, transformOptions.width)
-              : transformOptions.width,
-          height:
-            imageHeight && transformOptions.height
-              ? Math.min(imageHeight, transformOptions.height)
-              : undefined,
+          width: transformOptions.width,
+          height: transformOptions.height,
           contentType: outputContentType!,
         }
       );
